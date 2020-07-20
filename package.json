@@ -1,22 +1,24 @@
 {
   "name": "telegram-bot",
   "version": "1.0.0",
-  "description": "",
+  "description": "simple telegram bot",
   "main": "index.js",
   "scripts": {
+    "start": "node ./index.js",
     "dev": "nodemon ./index.js"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": ["telegram", "bot"],
+  "author": "Artem Bohush <art.bohush@gmail.com>",
   "license": "ISC",
   "dependencies": {
-    "node-telegram-bot-api": "^0.50.0",
-    "nodemon": "^2.0.4",
-    "sqlite-sync": "^0.3.9"
+    "dotenv": "8.2.0",
+    "node-telegram-bot-api": "0.50.0",
+    "nodemon": "2.0.4",
+    "sqlite-sync": "0.3.9"
   },
   "devDependencies": {
-    "eslint": "^7.5.0",
-    "eslint-config-airbnb-base": "^14.2.0",
-    "eslint-plugin-import": "^2.22.0"
+    "eslint": "7.5.0",
+    "eslint-config-airbnb-base": "14.2.0",
+    "eslint-plugin-import": "2.22.0"
   }
 }

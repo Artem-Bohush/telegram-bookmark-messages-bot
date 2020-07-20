@@ -1,5 +1,6 @@
 const TelegramBot = require('node-telegram-bot-api')
 const sqlite = require('sqlite-sync')
+require('dotenv').config({ path: `${__dirname}/config/.env` })
 
 sqlite.connect('./db/library.db')
 sqlite.run(`CREATE TABLE IF NOT EXISTS messages(
@@ -41,9 +42,9 @@ function getMessage(key) {
 
 //
 
-const token = '1386297206:AAGdrV7VlOfse8yIXvRkvrBcrY-AkT1rluI'
-const bot = new TelegramBot(token, { polling: true })
+const bot = new TelegramBot(process.env.BOT_TOKEN, { polling: true })
 
+// Retrieve message from database
 bot.onText(/\/get ([^;'"]+)/, (msg, match) => {
   const chatId = msg.chat.id
   const key = match[1]
@@ -53,6 +54,7 @@ bot.onText(/\/get ([^;'"]+)/, (msg, match) => {
   }
 })
 
+// Add message to database
 const addMode = {};
 
 bot.onText(/\/add ([^;'"]+)/, (msg, match) => {
@@ -94,4 +96,34 @@ bot.on('message', (msg) => {
   });
 
   delete addMode[chatId];
+});
+
+// Get list of messages for current user
+bot.onText(/\/list/, (msg) => {
+  const chatId = msg.chat.id;
+  const fromId = msg.from.id;
+  const data = sqlite.run('SELECT `key` FROM messages WHERE `from_id` = ?', [fromId]);
+  if (data.length === 0) {
+    bot.sendMessage(chatId, 'You have not added anything.');
+    return;
+  }
+  const lines = [];
+  data.forEach((element) => {
+    lines.push(`\`${element.key}\``);
+  });
+  bot.sendMessage(chatId, lines.join(', '), { parse_mode: 'markdown' });
+});
+
+// Remove message from database
+bot.onText(/\/remove ([^;'"]+)/, (msg, match) => {
+  const key = match[1];
+  const message = getMessage(key);
+  if (!message.exists) return;
+  if (message.from_id !== msg.from.id) return;
+
+  sqlite.delete('messages', { key }, (res) => {
+    if (!res.error) {
+      bot.sendMessage(msg.chat.id, 'Message successfully deleted!');
+    }
+  });
 });
